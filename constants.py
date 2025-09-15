@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Tokens
 SERVICE_ACCOUNT_ID = os.getenv("SERVICE_ACCOUNT_ID")
