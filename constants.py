@@ -1,14 +1,39 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+# Helper: normalize multiline private key that may come with escaped newlines
+def _normalize_private_key(key: str | None) -> str | None:
+    if not key:
+        return key
+    # If the key contains literal \n, replace with actual newlines
+    normalized = key.replace('\\n', '\n')
+    return normalized
 
 # Tokens
 SERVICE_ACCOUNT_ID = os.getenv("SERVICE_ACCOUNT_ID")
-PRIVATE_KEY = os.getenv("PRIVATE_KEY")
+PRIVATE_KEY = _normalize_private_key(os.getenv("PRIVATE_KEY"))
 FOLDER_ID = os.getenv("FOLDER_ID")
 KEY_ID = os.getenv("KEY_ID")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+# Validate required environment variables early with clear messages
+_missing = []
+for name, value in (
+    ("SERVICE_ACCOUNT_ID", SERVICE_ACCOUNT_ID),
+    ("FOLDER_ID", FOLDER_ID),
+    ("KEY_ID", KEY_ID),
+    ("PRIVATE_KEY", PRIVATE_KEY),
+    ("TELEGRAM_TOKEN", TELEGRAM_TOKEN),
+):
+    if not value:
+        _missing.append(name)
+
+if _missing:
+    # Provide guidance for docker-compose env file usage
+    missing_list = ", ".join(_missing)
+    raise RuntimeError(
+        f"Отсутствуют обязательные переменные окружения: {missing_list}. "
+        f"Убедитесь, что они заданы в файле stack.env (или окружении) и прокинуты в контейнер."
+    )
 
 # Paths
 MODEL_URI = f"gpt://{FOLDER_ID}/yandexgpt-lite"

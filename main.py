@@ -5,7 +5,9 @@ from yandex_gpt_bot import YandexGPTBot
 from constants import TELEGRAM_TOKEN
 from command_handler import *
 from yandex_gpt_bot import YandexGPTBot
+from dotenv import load_dotenv
 
+load_dotenv()
 yandex_bot = YandexGPTBot()
 
 def main():
