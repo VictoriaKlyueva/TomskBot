@@ -14,12 +14,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка текстовых сообщений"""
     user_message = update.message
+    user = update.effective_user
 
     if not user_message.text.strip():
         await update.message.reply_text("Пожалуйста, введите вопрос")
         return
 
     try:
+        # Логируем сообщение пользователя с его никнеймом
+        logger.info(f"User @{user.username} (ID: {user.id}): {user_message.text}")
+
         # Показываем статус "печатает"
         await context.bot.send_chat_action(
             chat_id=update.effective_chat.id,
@@ -30,12 +34,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(response)
 
     except Exception as e:
-        logger.error(f"Error handling message: {str(e)}")
+        logger.error(f"Error handling message from @{user.username}: {str(e)}")
         await update.message.reply_text(
             "Извините, произошла ошибка при обработке вашего запроса. "
             "Пожалуйста, попробуйте позже."
         )
-
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик ошибок"""
