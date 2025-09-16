@@ -45,31 +45,22 @@ def setup_logging():
 
 def setup_model_logging():
     """Настройка логгера для записи взаимодействий с моделью в CSV формате"""
-    # Создаем отдельный логгер для модели
     logger = logging.getLogger("model_logger")
     logger.setLevel(logging.INFO)
-
-    # Очищаем существующие обработчики, если есть
     logger.handlers.clear()
 
-    # Создаем CSV файл и записываем заголовок, если файл не существует
+    # CSV файл (оставляем как есть)
     csv_file = LOG_DIR / "model_interactions.csv"
     if not csv_file.exists():
         with open(csv_file, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(['Time', 'TgNickname', 'Prompt', 'Response', 'Blocked'])
 
-    # Создаем специальный обработчик для CSV
     class CSVHandler(logging.Handler):
-        def __init__(self, filename):
-            super().__init__()
-            self.filename = filename
-
         def emit(self, record):
-            # Ожидаем, что record.msg будет словарем с нужными полями
             if isinstance(record.msg, dict):
                 try:
-                    with open(self.filename, 'a', newline='', encoding='utf-8') as f:
+                    with open(csv_file, 'a', newline='', encoding='utf-8') as f:
                         writer = csv.writer(f)
                         writer.writerow([
                             record.msg.get('Time', datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
@@ -81,22 +72,24 @@ def setup_model_logging():
                 except Exception as e:
                     print(f"Error writing to CSV: {e}")
 
-    # Добавляем CSV обработчик
-    csv_handler = CSVHandler(csv_file)
+    csv_handler = CSVHandler()
     logger.addHandler(csv_handler)
 
-    # Также добавляем консольный вывод для отладки
-    console_formatter = logging.Formatter(
-        "MODEL LOG: %(asctime)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    # ДОБАВЬТЕ ЭТОТ ОБРАБОТЧИК для вывода в stdout в читаемом формате
+    class StdoutHandler(logging.Handler):
+        def emit(self, record):
+            if isinstance(record.msg, dict):
+                msg_data = record.msg
+                print(f"MODEL INTERACTION: "
+                      f"User: {msg_data.get('TgNickname', 'N/A')}, "
+                      f"Prompt: {msg_data.get('Prompt', '')}, "
+                      f"Response: {msg_data.get('Response', '')}, "
+                      f"Blocked: {msg_data.get('Blocked', '')}")
 
-    # Предотвращаем передачу сообщений корневому логгеру
+    stdout_handler = StdoutHandler()
+    logger.addHandler(stdout_handler)
+
     logger.propagate = False
-
     return logger
 
 

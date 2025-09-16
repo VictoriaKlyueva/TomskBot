@@ -1,6 +1,10 @@
 services:
   bot:
     build: .
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
       - stack.env
     restart: always
