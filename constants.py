@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 # Helper: normalize multiline private key that may come with escaped newlines

@@ -1,5 +1,8 @@
 import re
 
+from validator.constants import *
+
+
 class Validator:
     def __init__(self):
         pass

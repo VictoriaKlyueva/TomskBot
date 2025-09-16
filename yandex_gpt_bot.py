@@ -4,7 +4,8 @@ import time
 
 from logger import logger, log_model_interaction
 from constants import *
-from validator import Validator
+from validator.heuristic_validator import Validator
+from validator.constants import *
 
 
 class YandexGPTBot:
