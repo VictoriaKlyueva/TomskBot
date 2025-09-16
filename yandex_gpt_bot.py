@@ -25,8 +25,6 @@ class YandexGPTBot:
                 'exp': now + 360
             }
 
-            logger.info(f"KEY_ID type: {type(KEY_ID)}, KEY_ID value: {KEY_ID}")
-
             encoded_token = jwt.encode(
                 payload,
                 PRIVATE_KEY,

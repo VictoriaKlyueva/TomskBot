@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from logger import logger
+from logger import logger, log_model_interaction
 from main import yandex_bot
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -21,9 +21,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        # Логируем сообщение пользователя с его никнеймом
-        logger.info(f"User @{user.username} (ID: {user.id}): {user_message.text}")
-
         # Показываем статус "печатает"
         await context.bot.send_chat_action(
             chat_id=update.effective_chat.id,
@@ -31,6 +28,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         response = yandex_bot.ask_gpt(user_message.text)
+
+        # Logging
+        log_model_interaction(
+            tg_nickname=user.username,
+            prompt=user_message.text,
+            response=response,
+            blocked=False
+        )
+
         await update.message.reply_text(response)
 
     except Exception as e:

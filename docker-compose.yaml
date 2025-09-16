@@ -1,14 +1,6 @@
-version: '3.8'
-
 services:
   bot:
     build: .
     env_file:
       - stack.env
-    environment:
-      KEY_ID: "${KEY_ID}"
-      SERVICE_ACCOUNT_ID: "${SERVICE_ACCOUNT_ID}"
-      FOLDER_ID: "${FOLDER_ID}"
-      TELEGRAM_TOKEN: "${TELEGRAM_TOKEN}"
-      PRIVATE_KEY: "${PRIVATE_KEY}"
     restart: always
