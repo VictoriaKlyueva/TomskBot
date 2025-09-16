@@ -4,7 +4,7 @@ import time
 
 from logger import logger, log_model_interaction
 from constants import *
-from validator import Validator
+from validator.validator import Validator
 
 
 class YandexGPTBot:
@@ -110,7 +110,6 @@ class YandexGPTBot:
             )
 
             return result if not is_blocked else MOCK_RESPONSE
-
 
         except Exception as e:
             logger.error(f"Error in ask_gpt: {str(e)}")
