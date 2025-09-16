@@ -112,7 +112,7 @@ def log_model_interaction(tg_nickname: str, prompt: str, response: str, blocked:
     model_logger.info({
         'Time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'TgNickname': tg_nickname,
-        'Prompt': prompt,
-        'Response': response,
+        'Prompt': prompt[:100],
+        'Response': response[:100],
         'Blocked': blocked
     })
