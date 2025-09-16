@@ -7,4 +7,4 @@ services:
       - PYTHONUNBUFFERED=1
     env_file:
       - stack.env
-    restart: always
+    restart: unless-stopped
