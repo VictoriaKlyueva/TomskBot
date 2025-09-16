@@ -30,6 +30,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = yandex_bot.ask_gpt(user_message.text)
 
         # Logging
+        logger.info(f"tg_nickname={user.username}, prompt={user_message.text}, response={response}, blocked={False}")
         log_model_interaction(
             tg_nickname=user.username,
             prompt=user_message.text,
