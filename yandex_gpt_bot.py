@@ -2,7 +2,7 @@ import jwt
 import requests
 import time
 
-from logger import logger
+from logger import logger, log_model_interaction
 from constants import *
 
 
@@ -93,7 +93,18 @@ class YandexGPTBot:
                 logger.error(f"Yandex GPT API error: {response.text}")
                 raise Exception(f"Ошибка API: {response.status_code}")
 
-            return response.json()['result']['alternatives'][0]['message']['text']
+            result = response.json()['result']['alternatives'][0]['message']['text']
+
+            # Logging
+            logger.info(f"prompt={question}, response={result}, blocked={False}")
+            log_model_interaction(
+                tg_nickname="unknown",
+                prompt=question,
+                response=result,
+                blocked=False
+            )
+
+            return result
 
         except Exception as e:
             logger.error(f"Error in ask_gpt: {str(e)}")
