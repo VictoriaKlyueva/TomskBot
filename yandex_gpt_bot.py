@@ -4,12 +4,14 @@ import time
 
 from logger import logger, log_model_interaction
 from constants import *
+from validator import Validator
 
 
 class YandexGPTBot:
     def __init__(self):
         self.iam_token = None
         self.token_expires = 0
+        self.validator = Validator()
 
     def get_iam_token(self):
         """Получение IAM-токена (с кэшированием на 1 час)"""
@@ -95,16 +97,20 @@ class YandexGPTBot:
 
             result = response.json()['result']['alternatives'][0]['message']['text']
 
+            # Validation
+            is_blocked = self.validator.detect_injection(result)
+
             # Logging
             logger.info(f"prompt={question}, response={result}, blocked={False}")
             log_model_interaction(
                 tg_nickname="unknown",
                 prompt=question,
                 response=result,
-                blocked=False
+                blocked=is_blocked
             )
 
-            return result
+            return result if not is_blocked else MOCK_RESPONSE
+
 
         except Exception as e:
             logger.error(f"Error in ask_gpt: {str(e)}")
