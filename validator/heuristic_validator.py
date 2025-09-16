@@ -3,7 +3,7 @@ import re
 from validator.constants import *
 
 
-class Validator:
+class HeuristicValidator:
     def __init__(self):
         pass
 
