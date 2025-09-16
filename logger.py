@@ -44,12 +44,12 @@ def setup_logging():
 
 
 def setup_model_logging():
-    """Настройка логгера для записи взаимодействий с моделью в CSV формате"""
+    """Настройка логгера для записи взаимодействий с моделью"""
     logger = logging.getLogger("model_logger")
     logger.setLevel(logging.INFO)
     logger.handlers.clear()
 
-    # CSV файл (оставляем как есть)
+    # CSV файл
     csv_file = LOG_DIR / "model_interactions.csv"
     if not csv_file.exists():
         with open(csv_file, 'w', newline='', encoding='utf-8') as f:
@@ -75,19 +75,18 @@ def setup_model_logging():
     csv_handler = CSVHandler()
     logger.addHandler(csv_handler)
 
-    # ДОБАВЬТЕ ЭТОТ ОБРАБОТЧИК для вывода в stdout в читаемом формате
-    class StdoutHandler(logging.Handler):
+    # ПРОСТОЙ И ЧИТАЕМЫЙ вывод в консоль
+    class SimpleConsoleHandler(logging.Handler):
         def emit(self, record):
             if isinstance(record.msg, dict):
-                msg_data = record.msg
-                print(f"MODEL INTERACTION: "
-                      f"User: {msg_data.get('TgNickname', 'N/A')}, "
-                      f"Prompt: {msg_data.get('Prompt', '')}, "
-                      f"Response: {msg_data.get('Response', '')}, "
-                      f"Blocked: {msg_data.get('Blocked', '')}")
+                msg = record.msg
+                print(f"MODEL: {msg.get('TgNickname', 'Unknown')} -> "
+                      f"Prompt: '{msg.get('Prompt', '')}' | "
+                      f"Response: '{msg.get('Response', '')}' | "
+                      f"Blocked: {msg.get('Blocked', '')}")
 
-    stdout_handler = StdoutHandler()
-    logger.addHandler(stdout_handler)
+    console_handler = SimpleConsoleHandler()
+    logger.addHandler(console_handler)
 
     logger.propagate = False
     return logger
