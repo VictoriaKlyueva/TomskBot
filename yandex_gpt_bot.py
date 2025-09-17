@@ -27,7 +27,7 @@ class YandexGPTBot:
                 'aud': GET_IAM_REQUEST,
                 'iss': SERVICE_ACCOUNT_ID,
                 'iat': now,
-                'exp': now + 360
+                'exp': now + 3600
             }
 
             encoded_token = jwt.encode(
@@ -62,11 +62,10 @@ class YandexGPTBot:
 
         # Validation
         is_blocked_heuristic = self.heuristic_validator.detect_injection(question)
-        is_blocked_by_model = not self.yandex_gpt_validator.validate(question)['is_valid']
-
+        is_blocked_by_model = not self.yandex_gpt_validator.validate(question, is_blocked_heuristic)['is_valid']
         logger.info(is_blocked_by_model)
-
-        if is_blocked_heuristic or is_blocked_by_model:
+        
+        if is_blocked_by_model:
             # Logging
             logger.info(f"prompt={question}, response={None}, blocked={False}")
             log_model_interaction(
