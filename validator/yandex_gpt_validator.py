@@ -1,20 +1,16 @@
 import jwt
 import requests
 import time
+import json
 
 from logger import logger, log_model_interaction
 from constants import *
-from validator.heuristic_validator import HeuristicValidator
-from validator.yandex_gpt_validator import YandexGPTValidator
 from validator.constants import *
 
-
-class YandexGPTBot:
+class YandexGPTValidator:
     def __init__(self):
         self.iam_token = None
         self.token_expires = 0
-        self.heuristic_validator = HeuristicValidator()
-        self.yandex_gpt_validator = YandexGPTValidator()
 
     def get_iam_token(self):
         """Получение IAM-токена (с кэшированием на 1 час)"""
@@ -57,27 +53,8 @@ class YandexGPTBot:
             logger.error(f"Error generating IAM token: {str(e)}")
             raise
 
-    def ask_gpt(self, question):
-        """Запрос к Yandex GPT API"""
-
-        # Validation
-        is_blocked_heuristic = self.heuristic_validator.detect_injection(question)
-        is_blocked_by_model = not self.yandex_gpt_validator.validate(question)['is_valid']
-
-        logger.info(is_blocked_by_model)
-
-        if is_blocked_heuristic or is_blocked_by_model:
-            # Logging
-            logger.info(f"prompt={question}, response={None}, blocked={False}")
-            log_model_interaction(
-                tg_nickname="unknown",
-                prompt=question,
-                response="",
-                blocked=True
-            )
-
-            return MOCK_RESPONSE
-
+    def validate(self, question):
+        """Запрос валидации к Yandex GPT API"""
         try:
             iam_token = self.get_iam_token()
 
@@ -91,13 +68,13 @@ class YandexGPTBot:
                 "modelUri": MODEL_URI,
                 "completionOptions": {
                     "stream": False,
-                    "temperature": TEMPERATURE,
+                    "temperature": VALIDATION_TEMPERATURE,
                     "maxTokens": MAX_TOKENS
                 },
                 "messages": [
                     {
                         "role": "system",
-                        "text": SYSTEM_PROMPT
+                        "text": SYSTEM_VALIDATION_PROMPT
                     },
                     {
                         "role": "user",
@@ -118,19 +95,10 @@ class YandexGPTBot:
                 raise Exception(f"Ошибка API: {response.status_code}")
 
             result = response.json()['result']['alternatives'][0]['message']['text']
-
-            # Logging
-            logger.info(f"prompt={question}, response={result}, blocked={False}")
-            log_model_interaction(
-                tg_nickname="unknown",
-                prompt=question,
-                response=result,
-                blocked=False
-            )
+            result = json.loads(result.strip().replace('```', ''))
 
             return result
 
         except Exception as e:
             logger.error(f"Error in ask_gpt: {str(e)}")
             raise
-

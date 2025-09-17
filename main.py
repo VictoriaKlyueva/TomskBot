@@ -8,6 +8,7 @@ from yandex_gpt_bot import YandexGPTBot
 from dotenv import load_dotenv
 
 load_dotenv()
+
 yandex_bot = YandexGPTBot()
 
 def main():
