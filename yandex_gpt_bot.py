@@ -61,18 +61,25 @@ class YandexGPTBot:
         """Запрос к Yandex GPT API"""
 
         # Validation
-        is_blocked_heuristic = self.heuristic_validator.detect_injection(question)
-        is_blocked_by_model = not self.yandex_gpt_validator.validate(question)['is_valid']
+        is_blocked_heuristic, heuristic_block_reason = self.heuristic_validator.detect_injection(question)
+        not_blocked_by_model, model_block_reason = self.yandex_gpt_validator.validate(question)['is_valid'], \
+                                                   self.yandex_gpt_validator.validate(question)["reason"]
 
-        logger.info(is_blocked_by_model)
-
-        if is_blocked_heuristic or is_blocked_by_model:
-            # Logging
+        # Logging
+        if is_blocked_heuristic:
             logger.info(f"prompt={question}, response={None}, blocked={False}")
             log_model_interaction(
                 tg_nickname="unknown",
                 prompt=question,
-                response="",
+                response=f"Blocked by heuristic: {heuristic_block_reason}",
+                blocked=True
+            )
+        elif not not_blocked_by_model:
+            logger.info(f"prompt={question}, response={None}, blocked={False}")
+            log_model_interaction(
+                tg_nickname="unknown",
+                prompt=question,
+                response=f"Blocked by model: {model_block_reason}",
                 blocked=True
             )
 
