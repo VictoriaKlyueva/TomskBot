@@ -27,7 +27,7 @@ class YandexGPTBot:
                 'aud': GET_IAM_REQUEST,
                 'iss': SERVICE_ACCOUNT_ID,
                 'iat': now,
-                'exp': now + 3600
+                'exp': now + 360
             }
 
             encoded_token = jwt.encode(
@@ -61,18 +61,28 @@ class YandexGPTBot:
         """Запрос к Yandex GPT API"""
 
         # Validation
-        is_blocked_heuristic = self.heuristic_validator.detect_injection(question)
-        is_blocked_by_model = not self.yandex_gpt_validator.validate(question, is_blocked_heuristic)['is_valid']
-        logger.info(is_blocked_by_model)
-        
-        if is_blocked_by_model:
-            # Logging
+        is_blocked_heuristic, heuristic_block_reason = self.heuristic_validator.detect_injection(question)
+        not_blocked_by_model, model_block_reason = self.yandex_gpt_validator.validate(question)['is_valid'], \
+                                                   self.yandex_gpt_validator.validate(question)["reason"]
+
+        # Logging
+        if is_blocked_heuristic:
             logger.info(f"prompt={question}, response={None}, blocked={False}")
             log_model_interaction(
                 tg_nickname="unknown",
                 prompt=question,
                 response="",
-                blocked=True
+                blocked=True,
+                block_reason="Blocked by heuristic: {heuristic_block_reason}"
+            )
+        elif not not_blocked_by_model:
+            logger.info(f"prompt={question}, response={None}, blocked={False}")
+            log_model_interaction(
+                tg_nickname="unknown",
+                prompt=question,
+                response="",
+                blocked=True,
+                block_reason=f"Blocked by model: {model_block_reason}"
             )
 
             return MOCK_RESPONSE
@@ -124,7 +134,8 @@ class YandexGPTBot:
                 tg_nickname="unknown",
                 prompt=question,
                 response=result,
-                blocked=False
+                blocked=False,
+                block_reason=""
             )
 
             return result
