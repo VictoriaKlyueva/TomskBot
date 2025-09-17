@@ -8,15 +8,15 @@ class HeuristicValidator:
         pass
 
     @staticmethod
-    def detect_injection(text: str) -> bool:
+    def detect_injection(text: str) -> (bool, str):
         """
         Проверяет, содержит ли текст признаки промпт-инъекции.
-        Возвращает True, если инъекция обнаружена.
+        Возвращает пару: True и паттерн, если инъекция обнаружена, иначе False и None.
         """
         for pattern in COMPILED_PATTERNS:
             if pattern.search(text):
-                return True
-        return False
+                return True, pattern.pattern
+        return False, None
 
     @staticmethod
     def get_detected_pattern(text: str) -> str:
