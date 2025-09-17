@@ -71,16 +71,18 @@ class YandexGPTBot:
             log_model_interaction(
                 tg_nickname="unknown",
                 prompt=question,
-                response=f"Blocked by heuristic: {heuristic_block_reason}",
-                blocked=True
+                response="",
+                blocked=True,
+                block_reason="Blocked by heuristic: {heuristic_block_reason}"
             )
         elif not not_blocked_by_model:
             logger.info(f"prompt={question}, response={None}, blocked={False}")
             log_model_interaction(
                 tg_nickname="unknown",
                 prompt=question,
-                response=f"Blocked by model: {model_block_reason}",
-                blocked=True
+                response="",
+                blocked=True,
+                block_reason=f"Blocked by model: {model_block_reason}"
             )
 
             return MOCK_RESPONSE
@@ -132,7 +134,8 @@ class YandexGPTBot:
                 tg_nickname="unknown",
                 prompt=question,
                 response=result,
-                blocked=False
+                blocked=False,
+                block_reason=""
             )
 
             return result

@@ -83,7 +83,8 @@ def setup_model_logging():
                 print(f"MODEL: {msg.get('TgNickname', 'Unknown')} -> "
                       f"Prompt: '{msg.get('Prompt', '')}' | "
                       f"Response: '{msg.get('Response', '')}' | "
-                      f"Blocked: {msg.get('Blocked', '')}")
+                      f"Blocked: '{msg.get('Blocked', '')}' | "
+                      f"Block_Reason: '{msg.get('Block_Reason', '')}'")
 
     console_handler = SimpleConsoleHandler()
     logger.addHandler(console_handler)
@@ -99,12 +100,13 @@ model_logger = setup_model_logging()
 
 
 # Функция-помощник для удобного логирования взаимодействий с моделью
-def log_model_interaction(tg_nickname: str, prompt: str, response: str, blocked: bool):
+def log_model_interaction(tg_nickname: str, prompt: str, response: str, blocked: bool, block_reason: str):
     """Логирует взаимодействие с моделью в CSV формате"""
     model_logger.info({
         'Time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'TgNickname': tg_nickname,
         'Prompt': prompt[:100],
         'Response': response[:100],
-        'Blocked': blocked
+        'Blocked': blocked,
+        'Block_Reason': block_reason,
     })
